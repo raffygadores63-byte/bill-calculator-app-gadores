@@ -1,6 +1,14 @@
 // Login Form Validation and Submission
+let loginInProgress = false; // Prevent multiple submissions
+
 async function handleLogin() {
     console.log('handleLogin called');
+    
+    // Prevent multiple simultaneous login attempts
+    if (loginInProgress) {
+        console.log('Login already in progress, ignoring duplicate request');
+        return;
+    }
     
     // Check if Supabase client is initialized
     if (typeof supabaseClient === 'undefined' || !supabaseClient) {
@@ -29,6 +37,13 @@ async function handleLogin() {
     }
 
     try {
+        loginInProgress = true;
+        const loginBtn = document.querySelector('.btn-login');
+        if (loginBtn) {
+            loginBtn.disabled = true;
+            loginBtn.textContent = 'Logging in...';
+        }
+        
         console.log('Attempting login with email:', email);
         
         // Sign in with Supabase
@@ -43,16 +58,38 @@ async function handleLogin() {
             if (errorMessage.includes('Failed to fetch')) {
                 errorMessage = 'Connection error. Please check your internet connection and try again.';
             }
+            if (errorMessage.includes('Invalid login credentials')) {
+                errorMessage = 'Invalid email or password. Please try again.';
+            }
             alert('Login failed: ' + errorMessage);
+            
+            // Re-enable button
+            if (loginBtn) {
+                loginBtn.disabled = false;
+                loginBtn.textContent = 'Login Now';
+            }
+            loginInProgress = false;
             return;
         }
 
-        console.log('Login successful, redirecting to dashboard');
+        console.log('Login successful, user data:', data);
+        console.log('Redirecting to dashboard');
+        
         // Success - redirect to dashboard
-        window.location.href = 'user_dashboard.html';
+        setTimeout(() => {
+            window.location.href = 'user_dashboard.html';
+        }, 500);
+        
     } catch (error) {
         console.error('Unexpected error during login:', error);
         alert('An unexpected error occurred: ' + error.message);
+        
+        const loginBtn = document.querySelector('.btn-login');
+        if (loginBtn) {
+            loginBtn.disabled = false;
+            loginBtn.textContent = 'Login Now';
+        }
+        loginInProgress = false;
     }
 }
 
@@ -74,6 +111,21 @@ document.addEventListener('DOMContentLoaded', async function() {
         });
     } else {
         console.error('Login form not found! Check if the form ID is correct.');
+    }
+
+    // Attach click handler to Login Now button as fallback
+    const loginBtn = document.querySelector('.btn-login');
+    if (loginBtn) {
+        console.log('Found LOGIN NOW button, attaching click handler');
+        loginBtn.addEventListener('click', async function(e) {
+            console.log('LOGIN NOW button clicked directly');
+            // The form submit should handle it, but this is a fallback
+            const form = document.getElementById('loginForm');
+            if (form) {
+                e.preventDefault();
+                await handleLogin();
+            }
+        });
     }
 
     // Forgot Password Link

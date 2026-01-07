@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     // Load recent bills from Supabase
     try {
         const { data: billHistory, error } = await supabaseClient
-            .from('calculations')
+            .from('bills')
             .select('*')
             .eq('user_id', user.id)
             .order('created_at', { ascending: false })
@@ -36,11 +36,11 @@ document.addEventListener('DOMContentLoaded', async function() {
                 billHistory.forEach((bill) => {
                     const row = document.createElement('tr');
                     row.innerHTML = `
-                        <td>${bill.month}</td>
-                        <td>${bill.power_consumption} KwH</td>
-                        <td>${bill.power_consumption} KwH</td>
-                        <td>₱${bill.cost_per_kwh}</td>
-                        <td>₱${bill.result.toFixed(2)}</td>
+                        <td>${bill.period || 'N/A'}</td>
+                        <td>${bill.consumption || 'N/A'} KwH</td>
+                        <td>${bill.consumption || 'N/A'} KwH</td>
+                        <td>₱${bill.rate || 'N/A'}</td>
+                        <td>₱${bill.total ? bill.total.toFixed(2) : 'N/A'}</td>
                     `;
                     tbody.appendChild(row);
                 });
@@ -48,8 +48,8 @@ document.addEventListener('DOMContentLoaded', async function() {
                 // Update last month bill
                 const latestBill = billHistory[0];
                 const billAmount = document.querySelector('.bill-amount');
-                if (billAmount) {
-                    billAmount.textContent = '₱' + latestBill.result.toFixed(2);
+                if (billAmount && latestBill.total) {
+                    billAmount.textContent = '₱' + latestBill.total.toFixed(2);
                 }
             } else {
                 tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 20px;">No bills yet. Calculate your first bill!</td></tr>';
