@@ -2,6 +2,14 @@
 const supabaseUrl = "https://syyqaofecnsxxucsmftc.supabase.co";
 const supabaseKey = "sb_publishable_UgL-yfOe5xmIco_yx9p-KQ_cU-8rBsh";
 
+// Get the site URL (works for both localhost and production)
+const getSiteUrl = () => {
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        return `http://${window.location.host}`;
+    }
+    return `${window.location.protocol}//${window.location.host}`;
+};
+
 // Create Supabase client (supabase is available globally from CDN)
 // The CDN script exposes supabase with createClient method
 let supabaseClient;

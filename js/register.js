@@ -33,6 +33,7 @@ async function handleRegister() {
         email: email,
         password: password,
         options: {
+            emailRedirectTo: `${getSiteUrl()}/confirm-email.html`,
             data: {
                 fullname: name,
                 first_name: firstName,

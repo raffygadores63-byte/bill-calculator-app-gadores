@@ -57,7 +57,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                 if (email) {
                     try {
                         const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
-                            redirectTo: window.location.origin + '/login.html'
+                            redirectTo: `${getSiteUrl()}/login.html`
                         });
                         if (error) throw error;
                         alert('Password reset link has been sent to your email');
