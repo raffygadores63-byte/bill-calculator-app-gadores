@@ -1,5 +1,12 @@
 // Register Form Validation and Submission
 async function handleRegister() {
+    // Check if Supabase client is initialized
+    if (typeof supabaseClient === 'undefined' || !supabaseClient) {
+        alert('System error: Supabase is not initialized. Please refresh the page and try again.');
+        console.error('Supabase client not initialized');
+        return;
+    }
+
     // Get form values
     const inputs = document.querySelectorAll('#registerForm input');
     const name = inputs[0]?.value.trim() + ' ' + inputs[1]?.value.trim() || inputs[0]?.value.trim();
@@ -36,7 +43,12 @@ async function handleRegister() {
     });
 
     if (error) {
-        alert('Registration failed: ' + error.message);
+        console.error('Registration error:', error);
+        let errorMessage = error.message || 'Unknown error occurred';
+        if (errorMessage.includes('Failed to fetch')) {
+            errorMessage = 'Connection error. Please check your internet connection and try again.';
+        }
+        alert('Registration failed: ' + errorMessage);
         return;
     }
 

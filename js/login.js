@@ -1,5 +1,12 @@
 // Login Form Validation and Submission
 async function handleLogin() {
+    // Check if Supabase client is initialized
+    if (typeof supabaseClient === 'undefined' || !supabaseClient) {
+        alert('System error: Supabase is not initialized. Please refresh the page and try again.');
+        console.error('Supabase client not initialized');
+        return;
+    }
+
     const email = document.getElementById('email')?.value || document.querySelector('input[type="email"]')?.value;
     const password = document.getElementById('password')?.value || document.querySelector('input[type="password"]')?.value;
 
@@ -15,7 +22,12 @@ async function handleLogin() {
     });
 
     if (error) {
-        alert('Login failed: ' + error.message);
+        console.error('Login error:', error);
+        let errorMessage = error.message || 'Unknown error occurred';
+        if (errorMessage.includes('Failed to fetch')) {
+            errorMessage = 'Connection error. Please check your internet connection and try again.';
+        }
+        alert('Login failed: ' + errorMessage);
         return;
     }
 

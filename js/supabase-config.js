@@ -10,9 +10,14 @@ let supabaseClient;
 (function() {
     function initClient() {
         if (typeof supabase !== 'undefined' && supabase.createClient) {
-            const { createClient } = supabase;
-            supabaseClient = createClient(supabaseUrl, supabaseKey);
-            window.supabaseClient = supabaseClient;
+            try {
+                const { createClient } = supabase;
+                supabaseClient = createClient(supabaseUrl, supabaseKey);
+                window.supabaseClient = supabaseClient;
+                console.log('Supabase client initialized successfully');
+            } catch (error) {
+                console.error('Error initializing Supabase client:', error);
+            }
         } else {
             console.error('Supabase library not loaded. Make sure the CDN script is included before this file.');
         }
@@ -21,10 +26,13 @@ let supabaseClient;
     // Wait for script to load
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', function() {
-            setTimeout(initClient, 50);
+            setTimeout(initClient, 100);
         });
     } else {
-        setTimeout(initClient, 50);
+        setTimeout(initClient, 100);
     }
+    
+    // Also try to initialize immediately if library is already loaded
+    setTimeout(initClient, 50);
 })();
 
