@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EnerSave - Electricity Save Result History</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: #f5f5f5;
+            display: flex;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 212px;
+            background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+            color: white;
+            padding: 30px 20px;
+            min-height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+        }
+
+        .sidebar-logo {
+            font-size: 20px;
+            font-weight: bold;
+            color: #93c5fd;
+            margin-bottom: 50px;
+            text-align: center;
+        }
+
+        .sidebar-nav {
+            list-style: none;
+        }
+
+        .sidebar-nav li {
+            margin-bottom: 30px;
+        }
+
+        .sidebar-nav a {
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 10px;
+            border-radius: 6px;
+            transition: background-color 0.3s ease;
+        }
+
+        .sidebar-nav a:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-nav a.active {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .icon {
+            font-size: 20px;
+            width: 20px;
+            height: 20px;
+            object-fit: contain;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 212px;
+            flex: 1;
+            width: calc(100% - 212px);
+        }
+
+        /* Top Bar */
+        .top-bar {
+            background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+            color: white;
+            padding: 15px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .top-bar-logo {
+            font-size: 20px;
+            font-weight: bold;
+            color: #93c5fd;
+        }
+
+        .top-bar-user {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Content Area */
+        .content {
+            padding: 40px;
+        }
+
+        .page-title {
+            font-size: 44px;
+            font-weight: 700;
+            color: #000;
+            margin-bottom: 40px;
+            letter-spacing: -1px;
+        }
+
+        /* Highest Bill Card */
+        .highest-bill-card {
+            background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+            color: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 40px;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+        }
+
+        .bill-card-label {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .bill-card-amount {
+            font-size: 36px;
+            font-weight: 700;
+            letter-spacing: -1px;
+        }
+
+        /* Recent Bills Section */
+        .recent-bills-section {
+            background-color: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .recent-bills-section h2 {
+            font-size: 20px;
+            font-weight: 700;
+            color: #000;
+            margin-bottom: 25px;
+            letter-spacing: -0.5px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table thead {
+            background-color: #333;
+            color: white;
+        }
+
+        table thead th {
+            padding: 15px;
+            text-align: left;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        table tbody td {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            font-size: 14px;
+        }
+
+        table tbody tr:hover {
+            background-color: #f9f9f9;
+        }
+
+        table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .action-btn {
+            padding: 6px 14px;
+            background-color: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-right: 8px;
+        }
+
+        .action-btn:hover {
+            background-color: #1d4ed8;
+        }
+
+        .delete-btn {
+            background-color: transparent;
+            color: #999;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+            padding: 6px;
+            transition: color 0.3s ease;
+        }
+
+        .delete-btn:hover {
+            color: #ff4444;
+        }
+
+        .actions-cell {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                padding: 15px;
+                min-height: auto;
+                position: relative;
+            }
+
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+            }
+
+            .top-bar {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            .page-title {
+                font-size: 32px;
+                letter-spacing: -0.5px;
+            }
+
+            table {
+                font-size: 12px;
+            }
+
+            table thead th,
+            table tbody td {
+                padding: 10px;
+            }
+
+            .action-btn {
+                width: 100%;
+                padding: 10px 8px;
+                font-size: 12px;
+                margin: 4px 0;
+            }
+
+            .delete-btn {
+                width: 100%;
+                padding: 10px 8px;
+                font-size: 12px;
+                margin: 4px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-logo">EnerSave</div>
+        <ul class="sidebar-nav">
+            <li>
+                <a href="user_dashboard.html">
+                    <img src="img/dashboard.png" alt="Dashboard" class="icon">
+                    Dashboard
+                </a>
+            </li>
+            <li>
+                <a href="calculator_page.html">
+                    <img src="img/calculator.png" alt="Calculator" class="icon">
+                    Calculator
+                </a>
+            </li>
+            <li>
+                <a href="results_page.html" class="active">
+                    <img src="img/results.png" alt="Results" class="icon">
+                    Results
+                </a>
+            </li>
+            <li>
+                <a href="profile_page.html">
+                    <img src="img/user.png" alt="Profile" class="icon">
+                    Profile
+                </a>
+            </li>
+            <li>
+                <a href="login.html">
+                    <img src="img/out.png" alt="Logout" class="icon">
+                    Logout
+                </a>
+            </li>
+        </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <div class="top-bar-logo">EnerSave</div>
+            <div class="top-bar-user">
+                <span>Welcome</span>
+                <div class="user-avatar">
+                    <img src="img/user.png" alt="User Avatar">
+                </div>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+            <h1 class="page-title">Electricity Save Result History</h1>
+
+            <!-- Highest Bill Card -->
+            <div class="highest-bill-card">
+                <div class="bill-card-label">Highest Bill:</div>
+                <div class="bill-card-amount">₱158.4 September (2023)</div>
+            </div>
+
+            <!-- Recent Bills Table -->
+            <div class="recent-bills-section">
+                <h2>Recent Bills:</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Month</th>
+                            <th>Consumption</th>
+                            <th>Rate</th>
+                            <th>Total</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="billsTableBody">
+                        <!-- Bills loaded dynamically from localStorage -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Supabase CDN - Must be loaded first -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/results.js"></script>
+</body>
+</html>

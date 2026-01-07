@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EnerSave - User Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: #f5f5f5;
+            display: flex;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 212px;
+            background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+            color: white;
+            padding: 30px 20px;
+            min-height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+        }
+
+        .sidebar-logo {
+            font-size: 20px;
+            font-weight: bold;
+            color: #93c5fd;
+            margin-bottom: 50px;
+            text-align: center;
+        }
+
+        .sidebar-nav {
+            list-style: none;
+        }
+
+        .sidebar-nav li {
+            margin-bottom: 30px;
+        }
+
+        .sidebar-nav a {
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 10px;
+            border-radius: 6px;
+            transition: background-color 0.3s ease;
+        }
+
+        .sidebar-nav a:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-nav a.active {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .icon {
+            font-size: 20px;
+            width: 20px;
+            height: 20px;
+            object-fit: contain;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 212px;
+            flex: 1;
+            width: calc(100% - 212px);
+        }
+
+        /* Top Bar */
+        .top-bar {
+            background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+            color: white;
+            padding: 15px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .top-bar-logo {
+            font-size: 20px;
+            font-weight: bold;
+            color: #93c5fd;
+        }
+
+        .top-bar-user {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Content Area */
+        .content {
+            padding: 40px;
+        }
+
+        .header-section {
+            margin-bottom: 40px;
+        }
+
+        .header-section h1 {
+            font-size: 44px;
+            font-weight: 700;
+            color: #000;
+            margin-bottom: 10px;
+            letter-spacing: -1px;
+        }
+
+        .header-section p {
+            font-size: 16px;
+            color: #666;
+        }
+
+        /* Quick Actions */
+        .quick-actions-section {
+            margin-bottom: 50px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #000;
+            letter-spacing: -0.5px;
+        }
+
+        .view-all-btn {
+            padding: 8px 24px;
+            border: 2px solid #2563eb;
+            background-color: transparent;
+            color: #2563eb;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .view-all-btn:hover {
+            background-color: #2563eb;
+            color: white;
+        }
+
+        .quick-actions-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .action-card {
+            background-color: white;
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .action-card:hover {
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+            transform: translateY(-4px);
+        }
+
+        .action-card-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+            color: #2563eb;
+            width: 48px;
+            height: 48px;
+            object-fit: contain;
+            margin-left: auto;
+            margin-right: auto;
+            display: block;
+        }
+
+        .action-card-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #2563eb;
+        }
+
+        /* Last Month's Bill Card */
+        .bill-card {
+            background-color: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            margin-bottom: 40px;
+        }
+
+        .bill-card-label {
+            font-size: 14px;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+        }
+
+        .bill-amount {
+            font-size: 56px;
+            font-weight: 700;
+            color: #000;
+            margin-bottom: 10px;
+            letter-spacing: -1px;
+        }
+
+        .bill-usage {
+            font-size: 16px;
+            color: #666;
+        }
+
+        /* Recent Bills Table */
+        .recent-bills-section {
+            background-color: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .recent-bills-section h2 {
+            font-size: 20px;
+            font-weight: 700;
+            color: #000;
+            margin-bottom: 25px;
+            letter-spacing: -0.5px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table thead {
+            background-color: #333;
+            color: white;
+        }
+
+        table thead th {
+            padding: 15px;
+            text-align: left;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        table tbody td {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            font-size: 14px;
+        }
+
+        table tbody tr:hover {
+            background-color: #f9f9f9;
+        }
+
+        table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                padding: 15px;
+                min-height: auto;
+                position: relative;
+            }
+
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+            }
+
+            .top-bar {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            .quick-actions-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .action-card {
+                padding: 20px;
+            }
+
+            .view-all-btn {
+                padding: 10px 16px;
+                font-size: 13px;
+                width: auto;
+            }
+
+            .header-section h1 {
+                font-size: 32px;
+                letter-spacing: -0.5px;
+            }
+
+            table {
+                font-size: 12px;
+            }
+
+            table thead th,
+            table tbody td {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-logo">EnerSave</div>
+        <ul class="sidebar-nav">
+            <li>
+                <a href="user_dashboard.html" class="active">
+                    <img src="img/dashboard.png" alt="Dashboard" class="icon">
+                    Dashboard
+                </a>
+            </li>
+            <li>
+                <a href="calculator_page.html">
+                    <img src="img/calculator.png" alt="Calculator" class="icon">
+                    Calculator
+                </a>
+            </li>
+            <li>
+                <a href="results_page.html">
+                    <img src="img/results.png" alt="Results" class="icon">
+                    Results
+                </a>
+            </li>
+            <li>
+                <a href="profile_page.html">
+                    <img src="img/user.png" alt="Profile" class="icon">
+                    Profile
+                </a>
+            </li>
+            <li>
+                <a href="login.html">
+                    <img src="img/out.png" alt="Logout" class="icon">
+                    Logout
+                </a>
+            </li>
+        </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <div class="top-bar-logo">EnerSave</div>
+            <div class="top-bar-user">
+                <span>Welcome</span>
+                <div class="user-avatar">
+                    <img src="img/user1.png" alt="User Avatar">
+                </div>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+            <!-- Header Section -->
+            <div class="header-section">
+                <h1>Hello, Raffy</h1>
+                <p>Welcome to EnerSave! Get Started With Our Features</p>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="quick-actions-section">
+                <div class="section-header">
+                    <h2 class="section-title">Quick Actions:</h2>
+                </div>
+                <div class="quick-actions-grid">
+                    <a href="calculator_page.html" class="action-card">
+                        <img src="img/calculator.png" alt="Calculator" class="action-card-icon">
+                        <div class="action-card-title">Calculator</div>
+                    </a>
+                    <a href="results_page.html" class="action-card">
+                        <img src="img/results.png" alt="Results" class="action-card-icon">
+                        <div class="action-card-title">Results</div>
+                    </a>
+                    <a href="profile_page.html" class="action-card">
+                        <img src="img/user.png" alt="Profile" class="action-card-icon">
+                        <div class="action-card-title">Profile</div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Last Month's Bill -->
+            <div class="bill-card">
+                <div class="bill-card-label">Last Month's Bill:</div>
+                <div class="bill-amount">₱151.2</div>
+                <div class="bill-usage">420 KwH</div>
+            </div>
+
+            <!-- Recent Bills Table -->
+            <div class="recent-bills-section">
+                <div class="section-header">
+                    <h2>Recent Bills:</h2>
+                    <a href="results_page.html" class="view-all-btn">View All</a>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Month</th>
+                            <th>KwH</th>
+                            <th>KwH</th>
+                            <th>Rate</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>October</td>
+                            <td>420 KwH</td>
+                            <td>420 KwH</td>
+                            <td>₱0.36</td>
+                            <td>₱151.2</td>
+                        </tr>
+                        <tr>
+                            <td>September</td>
+                            <td>430 KwH</td>
+                            <td>430 KwH</td>
+                            <td>₱0.36</td>
+                            <td>₱154.8</td>
+                        </tr>
+                        <tr>
+                            <td>August</td>
+                            <td>440 KwH</td>
+                            <td>440 KwH</td>
+                            <td>₱0.36</td>
+                            <td>₱158.4</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Supabase CDN - Must be loaded first -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/user-dashboard.js"></script>
+</body>
+</html>

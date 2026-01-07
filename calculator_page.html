@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EnerSave - Electricity Bill Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: #f5f5f5;
+            display: flex;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 212px;
+            background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+            color: white;
+            padding: 30px 20px;
+            min-height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+        }
+
+        .sidebar-logo {
+            font-size: 20px;
+            font-weight: bold;
+            color: #93c5fd;
+            margin-bottom: 50px;
+            text-align: center;
+        }
+
+        .sidebar-nav {
+            list-style: none;
+        }
+
+        .sidebar-nav li {
+            margin-bottom: 30px;
+        }
+
+        .sidebar-nav a {
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 10px;
+            border-radius: 6px;
+            transition: background-color 0.3s ease;
+        }
+
+        .sidebar-nav a:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-nav a.active {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .icon {
+            font-size: 20px;
+            width: 20px;
+            height: 20px;
+            object-fit: contain;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 212px;
+            flex: 1;
+            width: calc(100% - 212px);
+        }
+
+        /* Top Bar */
+        .top-bar {
+            background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+            color: white;
+            padding: 15px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .top-bar-logo {
+            font-size: 20px;
+            font-weight: bold;
+            color: #93c5fd;
+        }
+
+        .top-bar-user {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Content Area */
+        .content {
+            padding: 40px;
+        }
+
+        .page-title {
+            font-size: 44px;
+            font-weight: 700;
+            color: #000;
+            margin-bottom: 40px;
+            letter-spacing: -1px;
+        }
+
+        /* Calculator Container */
+        .calculator-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+        }
+
+        /* Left Side - Form */
+        .calculator-form-section {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .summary-box {
+            background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+            color: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .summary-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .summary-text {
+            font-size: 15px;
+            line-height: 1.5;
+            color: #e0e7ff;
+        }
+
+        .calculator-card {
+            background-color: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 13px 16px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: all 0.3s ease;
+            background-color: #fafafa;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+            background-color: white;
+        }
+
+        .form-group input::placeholder {
+            color: #999;
+        }
+
+        .calculate-btn {
+            width: 100%;
+            padding: 14px;
+            background-color: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background-color 0.3s ease;
+        }
+
+        .calculate-btn:hover {
+            background-color: #1d4ed8;
+        }
+
+        /* Right Side - Result */
+        .calculator-result-section {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .result-card {
+            background-color: white;
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            text-align: center;
+            flex: 1;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .result-card.show {
+            display: flex;
+        }
+
+        .result-label {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .result-amount {
+            font-size: 64px;
+            font-weight: 700;
+            color: #2563eb;
+            margin-bottom: 15px;
+            letter-spacing: -1px;
+        }
+
+        .result-description {
+            font-size: 14px;
+            color: #999;
+            margin-bottom: 30px;
+        }
+
+        .save-result-btn {
+            padding: 12px 32px;
+            border: 2px solid #2563eb;
+            background-color: transparent;
+            color: #2563eb;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            align-self: center;
+        }
+
+        .save-result-btn:hover {
+            background-color: #2563eb;
+            color: white;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                padding: 15px;
+                min-height: auto;
+                position: relative;
+            }
+
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+            }
+
+            .top-bar {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            .page-title {
+                font-size: 32px;
+                letter-spacing: -0.5px;
+            }
+
+            .calculator-container {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+
+            .result-amount {
+                font-size: 48px;
+            }
+
+            .calculate-btn {
+                width: 100%;
+                padding: 14px 20px;
+                font-size: 15px;
+            }
+
+            .save-result-btn {
+                width: 100%;
+                padding: 12px 20px;
+                font-size: 14px;
+            }
+
+            .form-group input,
+            .form-group select {
+                padding: 12px 16px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-logo">EnerSave</div>
+        <ul class="sidebar-nav">
+            <li>
+                <a href="user_dashboard.html" class="active">
+                    <img src="img/dashboard.png" alt="Dashboard" class="icon">
+                    Dashboard
+                </a>
+            </li>
+            <li>
+                <a href="calculator_page.html" class="active">
+                    <img src="img/calculator.png" alt="Calculator" class="icon">
+                    Calculator
+                </a>
+            </li>
+            <li>
+                <a href="results_page.html">
+                    <img src="img/results.png" alt="Results" class="icon">
+                    Results
+                </a>
+            </li>
+            <li>
+                <a href="profile_page.html">
+                    <img src="img/user.png" alt="Profile" class="icon">
+                    Profile
+                </a>
+            </li>
+            <li>
+                <a href="login.html">
+                    <img src="img/out.png" alt="Logout" class="icon">
+                    Logout
+                </a>
+            </li>
+        </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <div class="top-bar-logo">EnerSave</div>
+            <div class="top-bar-user">
+                <span>Welcome</span>
+                <div class="user-avatar">👤</div>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+            <h1 class="page-title">Electricity Bill Calculator</h1>
+
+            <!-- Calculator Container -->
+            <div class="calculator-container">
+                <!-- Left Side - Form -->
+                <div class="calculator-form-section">
+                    <!-- Summary Box -->
+                    <div class="summary-box">
+                        <div class="summary-title">Summary</div>
+                        <div class="summary-text">
+                            Estimate your monthly electricity cost. Enter your latest consumption data below.
+                        </div>
+                    </div>
+
+                    <!-- Calculator Form -->
+                    <div class="calculator-card">
+                        <form id="billCalculatorForm">
+                            <div class="form-group">
+                                <input type="text" name="month" placeholder="Input Month:" required>
+                            </div>
+
+                            <div class="form-group">
+                                <input type="number" name="consumption" placeholder="Power Consumption (kWh):" step="0.01" required>
+                            </div>
+
+                            <div class="form-group">
+                                <input type="number" name="rate" placeholder="Cost per kWh (₱):" step="0.01" required>
+                            </div>
+
+                            <button type="submit" class="calculate-btn">Calculate</button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Right Side - Result -->
+                <div class="calculator-result-section">
+                    <div class="result-card">
+                        <div class="result-label">Estimated Total Bill:</div>
+                        <div class="result-amount">₱0.00</div>
+                        <div class="result-description">Based on Power Consumption * Rate</div>
+                        <button class="save-result-btn">Save Result</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Supabase CDN - Must be loaded first -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/calculator.js"></script>
+</body>
+</html>

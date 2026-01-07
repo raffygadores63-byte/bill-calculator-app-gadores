@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EnerSave - Know Your Bill. Unlock Your Savings.</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        /* Navigation */
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 60px;
+            background-color: transparent;
+            position: relative;
+            z-index: 10;
+        }
+
+        nav .logo {
+            font-size: 30px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 40px;
+        }
+
+        nav ul li a {
+            text-decoration: none;
+            color: #666;
+            font-size: 30px;
+            font-weight: 500;
+            text-align: left;
+        }
+
+        nav ul li a:hover {
+            color: #2563eb;
+        }
+
+        nav .auth-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        nav .btn-login {
+            padding: 10px 24px;
+            background-color: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 30px;
+            font-weight: 600;
+        }
+
+        nav .btn-login:hover {
+            background-color: #1d4ed8;
+        }
+
+        nav .btn-signup {
+            padding: 10px 24px;
+            background-color: transparent;
+            color: #2563eb;
+            border: 2px solid #2563eb;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 30px;
+            font-weight: 600;
+        }
+
+        nav .btn-signup:hover {
+            background-color: #f0f4ff;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: url('img/bg.webp') center/cover no-repeat;
+            background-attachment: fixed;
+            color: white;
+            padding: 100px 60px;
+            text-align: left;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 1;
+        }
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 1000px;
+        }
+        .hero h1 {
+            font-size: 80px;
+            font-weight: 500;
+            line-height: 1.2;
+            letter-spacing: -1px;
+            text-align: left;
+            margin-bottom: 10px;
+        }
+
+        .hero p {
+            font-size: 20px;
+            color: #bfdbfe;
+            margin-bottom: 50px;
+        }
+
+        /* Feature Cards - Hero Section */
+        .hero-features {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            margin-top: 80px;
+        }
+
+        .feature-card {
+            background-color: white;
+            color: black;
+            padding: 50px 35px;
+            border-radius: 16px;
+            text-align: center;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .feature-card-icon {
+            font-size: 56px;
+            margin-bottom: 25px;
+            color: #2563eb;
+            width: 100%;
+            max-width: 60px;
+            height: auto;
+            margin-left: auto;
+            margin-right: auto;
+            display: block;
+        }
+
+        .feature-card h3 {
+            font-size: 30px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            letter-spacing: -0.5px;
+        }
+
+        /* Features Section */
+        .features-section {
+            background: linear-gradient(135deg, #1a4a8a 0%, #0c2d5c 100%);
+            color: white;
+            padding: 100px 60px;
+            position: relative;
+        }
+
+        .features-section h2 {
+            font-size: 55px;
+            margin-bottom: 60px;
+            font-weight: 700;
+            letter-spacing: -1px;
+        }
+
+        .features-section h2 span {
+            color: #306CDB;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+        }
+
+        .feature-detail {
+            background-color: white;
+            color: #333;
+            padding: 50px 40px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            transition: transform 0.3s ease;
+        }
+
+        .feature-detail:hover {
+            transform: translateY(-5px);
+        }
+
+        .feature-detail-icon {
+            font-size: 56px;
+            margin-bottom: 25px;
+            color: #2563eb;
+            text-align: center;
+            width: 100%;
+            max-width: 60px;
+            height: auto;
+            margin-left: auto;
+            margin-right: auto;
+            display: block;
+        }
+
+        .feature-detail h3 {
+            font-size: 30px;
+            font-weight: 700;
+            margin-bottom: 25px;
+            color: #333;
+            letter-spacing: -0.5px;
+            text-align: center;
+        }
+
+        .feature-detail p {
+            font-size: 25px;
+            color: #666;
+            line-height: 1.7;
+            text-align: center;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            nav .btn-login,
+            nav .btn-signup {
+                padding: 10px 16px;
+                font-size: 13px;
+                width: auto;
+            }
+
+            nav .auth-buttons {
+                gap: 10px;
+            }
+
+            nav {
+                padding: 15px 20px;
+                flex-wrap: wrap;
+                gap: 15px;
+            }
+
+            nav ul {
+                flex-direction: column;
+                gap: 15px;
+                width: 100%;
+                margin-top: 15px;
+            }
+
+            nav .auth-buttons {
+                flex: 1 1 100%;
+                justify-content: center;
+            }
+
+            .hero {
+                padding: 50px 20px;
+                text-align: center;
+            }
+
+            .hero h1 {
+                font-size: 32px;
+            }
+
+            .hero-features,
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .features-section {
+                padding: 50px 20px;
+            }
+
+            .features-section h2 {
+                font-size: 32px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="logo">EnerSave</div>
+        <ul>
+            <li><a href="homepage.html">HOME</a></li>
+            <li><a href="homepage.html#about">ABOUT US</a></li>
+            <li><a href="homepage.html#contact">CONTACT</a></li>
+        </ul>
+        <div class="auth-buttons">
+            <button class="btn-login" onclick="window.location.href='login.html'">Log In</button>
+            <button class="btn-signup" onclick="window.location.href='register.html'">Sign Up</button>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Know Your Bill. Unlock Your Savings. Determine your exact electric cost today.</h1>
+            <p>Monitor usage, track spending, and save money with ease.</p>
+        </div>
+        
+        <!-- Feature Cards -->
+        <div class="hero-features">
+            <div class="feature-card">
+                <img src="img/bill history.png" alt="Instant Bill Estimates" class="feature-card-icon">
+                <h3>Instant Bill Estimates</h3>
+            </div>
+            <div class="feature-card">
+                <img src="img/search.png" alt="Track Monthly Usage" class="feature-card-icon">
+                <h3>Track Monthly Usage</h3>
+            </div>
+            <div class="feature-card">
+                <img src="img/security.png" alt="Data Privacy Guaranteed" class="feature-card-icon">
+                <h3>Data Privacy Guaranteed</h3>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features-section">
+        <h2>Our <span>Features:</span></h2>
+        
+        <div class="features-grid">
+            <div class="feature-detail">
+                <img src="img/contract.png" alt="Input your data" class="feature-detail-icon">
+                <h3>1. Input your data</h3>
+                <p>Simply enter your latest power consumption (kWh) and the rate from your bill into the calculator fields.</p>
+            </div>
+            <div class="feature-detail">
+                <img src="img/calculator.png" alt="Get Instant Result" class="feature-detail-icon">
+                <h3>2. Get Instant Result</h3>
+                <p>The app instantly calculates your total bill and provides a precise breakdown. You can save the result to your account.</p>
+            </div>
+            <div class="feature-detail">
+                <img src="img/profit.png" alt="Track & Save" class="feature-detail-icon">
+                <h3>3. Track & Save</h3>
+                <p>Track your usage history, compare how it changes over time, and discover ways to lower your bill.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Supabase CDN - Must be loaded first -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/homepage.js"></script>
+</body>
+</html>
