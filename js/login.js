@@ -2,31 +2,34 @@
 let loginInProgress = false; // Prevent multiple submissions
 
 async function handleLogin() {
-    console.log('handleLogin called');
+    console.log('=== handleLogin called ===');
     
     // Prevent multiple simultaneous login attempts
     if (loginInProgress) {
-        console.log('Login already in progress, ignoring duplicate request');
+        console.log('Login already in progress');
         return;
     }
     
     // Check if Supabase client is initialized
     if (typeof supabaseClient === 'undefined' || !supabaseClient) {
-        alert('System error: Supabase is not initialized. Please refresh the page and try again.');
         console.error('Supabase client not initialized');
+        alert('System error: Supabase not ready. Please refresh the page.');
         return;
     }
 
-    // Get form values using the form element
+    // Get form and inputs
     const loginForm = document.getElementById('loginForm');
     if (!loginForm) {
-        alert('Form not found. Please refresh the page.');
         console.error('Login form not found');
+        alert('Form error. Please refresh.');
         return;
     }
     
-    const email = loginForm.querySelector('input[type="email"]')?.value?.trim();
-    const password = loginForm.querySelector('input[type="password"]')?.value?.trim();
+    const emailInput = loginForm.querySelector('input[type="email"]');
+    const passwordInput = loginForm.querySelector('input[type="password"]');
+    
+    const email = emailInput?.value?.trim() || '';
+    const password = passwordInput?.value?.trim() || '';
 
     console.log('Email:', email ? 'provided' : 'missing');
     console.log('Password:', password ? 'provided' : 'missing');
@@ -55,15 +58,15 @@ async function handleLogin() {
         if (error) {
             console.error('Login error:', error);
             let errorMessage = error.message || 'Unknown error occurred';
+            
             if (errorMessage.includes('Failed to fetch')) {
-                errorMessage = 'Connection error. Please check your internet connection and try again.';
+                errorMessage = 'Connection error. Check your internet.';
+            } else if (errorMessage.includes('Invalid login credentials')) {
+                errorMessage = 'Invalid email or password.';
             }
-            if (errorMessage.includes('Invalid login credentials')) {
-                errorMessage = 'Invalid email or password. Please try again.';
-            }
+            
             alert('Login failed: ' + errorMessage);
             
-            // Re-enable button
             if (loginBtn) {
                 loginBtn.disabled = false;
                 loginBtn.textContent = 'Login Now';
@@ -72,17 +75,27 @@ async function handleLogin() {
             return;
         }
 
-        console.log('Login successful, user data:', data);
-        console.log('Redirecting to dashboard');
+        if (!data?.session) {
+            console.error('No session in login response');
+            alert('Login error: No session created');
+            if (loginBtn) {
+                loginBtn.disabled = false;
+                loginBtn.textContent = 'Login Now';
+            }
+            loginInProgress = false;
+            return;
+        }
+
+        console.log('Login successful!');
+        console.log('Redirecting to user_dashboard.html');
         
-        // Success - redirect to dashboard
-        setTimeout(() => {
-            window.location.href = 'user_dashboard.html';
-        }, 500);
+        // Wait a bit then redirect
+        await new Promise(resolve => setTimeout(resolve, 300));
+        window.location.href = 'user_dashboard.html';
         
     } catch (error) {
-        console.error('Unexpected error during login:', error);
-        alert('An unexpected error occurred: ' + error.message);
+        console.error('Unexpected error:', error);
+        alert('Error: ' + error.message);
         
         const loginBtn = document.querySelector('.btn-login');
         if (loginBtn) {
@@ -94,59 +107,64 @@ async function handleLogin() {
 }
 
 document.addEventListener('DOMContentLoaded', async function() {
-    console.log('Login page loaded');
+    console.log('=== Page loaded ===');
     
-    // Redirect if already authenticated
+    // Wait for Supabase to be ready
+    let attempts = 0;
+    while ((typeof supabaseClient === 'undefined' || !supabaseClient) && attempts < 20) {
+        await new Promise(resolve => setTimeout(resolve, 50));
+        attempts++;
+    }
+    
+    console.log('Supabase ready:', !!supabaseClient);
+    
+    // Check if already logged in
     await redirectIfAuthenticated();
 
+    // Get form
     const loginForm = document.getElementById('loginForm');
-    console.log('Login form found:', !!loginForm);
+    if (!loginForm) {
+        console.error('Form not found');
+        return;
+    }
     
-    if (loginForm) {
-        console.log('Attaching submit event listener to login form');
-        loginForm.addEventListener('submit', async function(e) {
-            console.log('Login form submitted');
+    console.log('Setting up form handlers');
+    
+    // Form submit handler
+    loginForm.addEventListener('submit', function(e) {
+        console.log('Form submitted');
+        e.preventDefault();
+        handleLogin();
+    });
+    
+    // Button click handler
+    const submitBtn = loginForm.querySelector('button[type="submit"]');
+    if (submitBtn) {
+        submitBtn.addEventListener('click', function(e) {
+            console.log('Button clicked');
             e.preventDefault();
-            await handleLogin();
+            e.stopPropagation();
+            handleLogin();
         });
-    } else {
-        console.error('Login form not found! Check if the form ID is correct.');
     }
 
-    // Attach click handler to Login Now button as fallback
-    const loginBtn = document.querySelector('.btn-login');
-    if (loginBtn) {
-        console.log('Found LOGIN NOW button, attaching click handler');
-        loginBtn.addEventListener('click', async function(e) {
-            console.log('LOGIN NOW button clicked directly');
-            // The form submit should handle it, but this is a fallback
-            const form = document.getElementById('loginForm');
-            if (form) {
-                e.preventDefault();
-                await handleLogin();
+    // Password reset
+    const forgotLink = document.querySelector('a[href*="password"], a[href*="forgot"]');
+    if (forgotLink) {
+        forgotLink.addEventListener('click', async function(e) {
+            e.preventDefault();
+            const email = prompt('Enter your email:');
+            if (email) {
+                try {
+                    await supabaseClient.auth.resetPasswordForEmail(email, {
+                        redirectTo: `${getSiteUrl()}/login.html`
+                    });
+                    alert('Password reset link sent to your email');
+                } catch (error) {
+                    alert('Error: ' + error.message);
+                }
             }
         });
     }
-
-    // Forgot Password Link
-    document.querySelectorAll('a').forEach(link => {
-        if (link.textContent.includes('Forgot')) {
-            link.addEventListener('click', async function(e) {
-                e.preventDefault();
-                const email = prompt('Enter your email address to reset password:');
-                if (email) {
-                    try {
-                        const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
-                            redirectTo: `${getSiteUrl()}/login.html`
-                        });
-                        if (error) throw error;
-                        alert('Password reset link has been sent to your email');
-                    } catch (error) {
-                        console.error('Password reset error:', error);
-                        alert(error.message || 'Failed to send password reset email');
-                    }
-                }
-            });
-        }
-    });
 });
+

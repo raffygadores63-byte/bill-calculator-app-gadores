@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EnerSave - Debug Page</title>
+    <style>
+        body {
+            font-family: monospace;
+            padding: 20px;
+            background: #f0f0f0;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #333;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 3px;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+            border: none;
+            border-radius: 3px;
+            background: #2563eb;
+            color: white;
+        }
+        button:hover {
+            background: #1d4ed8;
+        }
+        .log {
+            background: #000;
+            color: #0f0;
+            padding: 10px;
+            border-radius: 3px;
+            max-height: 300px;
+            overflow-y: auto;
+            margin: 10px 0;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>EnerSave - Debug Console</h1>
+        
+        <h2>System Status</h2>
+        <div id="statusDiv"></div>
+        
+        <h2>Test Login</h2>
+        <p>
+            <label>Email: <input type="email" id="testEmail" value="raffygadores63@gmail.com"></label><br>
+            <label>Password: <input type="password" id="testPassword" value=""></label><br>
+            <button onclick="testLogin()">Test Login</button>
+            <button onclick="testLogout()">Test Logout</button>
+            <button onclick="checkSession()">Check Session</button>
+        </p>
+        
+        <h2>Console Log</h2>
+        <div class="log" id="logDiv"></div>
+        
+        <h2>Actions</h2>
+        <button onclick="goToLogin()">Go to Login Page</button>
+        <button onclick="goToDashboard()">Go to Dashboard</button>
+        <button onclick="clearLog()">Clear Log</button>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        const logDiv = document.getElementById('logDiv');
+        const statusDiv = document.getElementById('statusDiv');
+        
+        function log(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            const entry = document.createElement('div');
+            entry.textContent = `[${timestamp}] ${message}`;
+            logDiv.appendChild(entry);
+            logDiv.scrollTop = logDiv.scrollHeight;
+            console.log(message);
+        }
+        
+        function clearLog() {
+            logDiv.innerHTML = '';
+        }
+        
+        async function updateStatus() {
+            let html = '';
+            
+            // Check Supabase
+            if (typeof supabaseClient !== 'undefined' && supabaseClient) {
+                html += '<div class="status success">✓ Supabase client initialized</div>';
+            } else {
+                html += '<div class="status error">✗ Supabase client NOT initialized</div>';
+            }
+            
+            // Check session
+            const session = await checkAuth();
+            if (session) {
+                html += '<div class="status success">✓ User logged in: ' + session.user.email + '</div>';
+            } else {
+                html += '<div class="status info">⚠ No active session</div>';
+            }
+            
+            statusDiv.innerHTML = html;
+        }
+        
+        async function testLogin() {
+            const email = document.getElementById('testEmail').value;
+            const password = document.getElementById('testPassword').value;
+            
+            if (!email || !password) {
+                log('ERROR: Please enter email and password');
+                return;
+            }
+            
+            log('Testing login with: ' + email);
+            
+            try {
+                const { data, error } = await supabaseClient.auth.signInWithPassword({
+                    email: email,
+                    password: password
+                });
+                
+                if (error) {
+                    log('LOGIN ERROR: ' + error.message);
+                    return;
+                }
+                
+                log('LOGIN SUCCESS!');
+                log('User: ' + data.user.email);
+                log('Session expires: ' + new Date(data.session.expires_at * 1000).toLocaleString());
+                
+                await updateStatus();
+            } catch (err) {
+                log('EXCEPTION: ' + err.message);
+            }
+        }
+        
+        async function testLogout() {
+            log('Logging out...');
+            const result = await signOut();
+            if (result) {
+                log('Logout successful');
+            } else {
+                log('Logout failed');
+            }
+            await updateStatus();
+        }
+        
+        async function checkSession() {
+            log('Checking session...');
+            const session = await checkAuth();
+            if (session) {
+                log('Session found: ' + session.user.email);
+            } else {
+                log('No session');
+            }
+            await updateStatus();
+        }
+        
+        function goToLogin() {
+            window.location.href = 'login.html';
+        }
+        
+        function goToDashboard() {
+            window.location.href = 'user_dashboard.html';
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', async function() {
+            log('Debug page loaded');
+            log('Waiting for Supabase...');
+            
+            let attempts = 0;
+            while ((typeof supabaseClient === 'undefined' || !supabaseClient) && attempts < 20) {
+                await new Promise(resolve => setTimeout(resolve, 50));
+                attempts++;
+            }
+            
+            if (supabaseClient) {
+                log('Supabase ready');
+            } else {
+                log('ERROR: Supabase failed to load');
+            }
+            
+            await updateStatus();
+        });
+    </script>
+</body>
+</html>
