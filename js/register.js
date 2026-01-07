@@ -27,7 +27,7 @@ async function handleRegister() {
         password: password,
         options: {
             data: {
-                full_name: name,
+                fullname: name,
                 first_name: firstName,
                 last_name: lastName,
                 phone: phone
@@ -40,7 +40,27 @@ async function handleRegister() {
         return;
     }
 
-    alert('Registration successful!');
+    // If signup successful but not confirmed email, wait for profile creation
+    if (data?.user) {
+        // Give the database trigger time to create the profile
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // Update profile with phone number
+        try {
+            const { error: updateError } = await supabaseClient
+                .from('profiles')
+                .update({ phone: phone })
+                .eq('id', data.user.id);
+            
+            if (updateError) {
+                console.warn('Warning: Could not save phone number:', updateError);
+            }
+        } catch (err) {
+            console.warn('Warning: Error updating profile:', err);
+        }
+    }
+
+    alert('Registration successful! Please check your email to confirm your account.');
     window.location.href = 'login.html';
 }
 
@@ -58,16 +78,6 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
 
     // Social buttons handler
-    document.querySelectorAll('.btn-social').forEach(btn => {
-        btn.addEventListener('click', function(e) {
-            e.preventDefault();
-            alert('Social login feature coming soon!');
-        });
-    });
-});
-
-// Social buttons handler
-document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('.btn-social').forEach(btn => {
         btn.addEventListener('click', function(e) {
             e.preventDefault();
