@@ -24,34 +24,39 @@ document.addEventListener('DOMContentLoaded', async function() {
             .select('*')
             .eq('user_id', user.id)
             .order('created_at', { ascending: false })
-            .limit(3);
+            .limit(5);  // Load more bills to ensure we have recent ones
 
-        if (error) throw error;
+        if (error) {
+            console.error('Error loading bills:', error);
+            throw error;
+        }
 
         const tbody = document.querySelector('table tbody');
         if (tbody) {
             tbody.innerHTML = '';
 
             if (billHistory && billHistory.length > 0) {
+                console.log('Found ' + billHistory.length + ' bills');
                 billHistory.forEach((bill) => {
                     const row = document.createElement('tr');
                     row.innerHTML = `
                         <td>${bill.period || 'N/A'}</td>
-                        <td>${bill.consumption || 'N/A'} KwH</td>
-                        <td>${bill.consumption || 'N/A'} KwH</td>
-                        <td>₱${bill.rate || 'N/A'}</td>
+                        <td>${bill.consumption || 'N/A'} kWh</td>
+                        <td>${bill.rate || 'N/A'}</td>
                         <td>₱${bill.total ? bill.total.toFixed(2) : 'N/A'}</td>
+                        <td>${new Date(bill.created_at).toLocaleDateString()}</td>
                     `;
                     tbody.appendChild(row);
                 });
 
-                // Update last month bill
+                // Update last month bill (latest bill)
                 const latestBill = billHistory[0];
                 const billAmount = document.querySelector('.bill-amount');
                 if (billAmount && latestBill.total) {
-                    billAmount.textContent = '₱' + latestBill.total.toFixed(2);
+                    billAmount.textContent = '₱' + latestBill.total.toFixed(2) + ' - ' + latestBill.period;
                 }
             } else {
+                console.log('No bills found for this user');
                 tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 20px;">No bills yet. Calculate your first bill!</td></tr>';
             }
         }
@@ -59,7 +64,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         console.error('Error loading dashboard data:', error);
         const tbody = document.querySelector('table tbody');
         if (tbody) {
-            tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 20px; color: red;">Error loading bills.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 20px; color: red;">Error loading bills. Try refreshing the page.</td></tr>';
         }
     }
 });

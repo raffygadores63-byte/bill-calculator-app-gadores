@@ -11,9 +11,9 @@ async function loadCalculations() {
     tableBody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 20px;">Loading...</td></tr>';
     
     try {
-        // Fetch calculations from Supabase
+        // Fetch bills from Supabase
         const { data, error } = await supabaseClient
-            .from('calculations')
+            .from('bills')
             .select('*')
             .eq('user_id', user.id)
             .order('created_at', { ascending: false });
@@ -39,20 +39,20 @@ async function loadCalculations() {
         }
 
         // Display data in table
-        data.forEach(calc => {
+        data.forEach(bill => {
             const row = tableBody.insertRow();
-            const date = new Date(calc.created_at).toLocaleString();
+            const date = new Date(bill.created_at).toLocaleString();
             
             row.innerHTML = `
-                <td>${calc.month}</td>
-                <td>${calc.power_consumption} KwH</td>
-                <td>₱${calc.cost_per_kwh}</td>
-                <td>₱${calc.result.toFixed(2)}</td>
+                <td>${bill.period}</td>
+                <td>${bill.consumption} KwH</td>
+                <td>₱${bill.rate}</td>
+                <td>₱${bill.total.toFixed(2)}</td>
                 <td>${date}</td>
                 <td>
                     <div class="actions-cell">
-                        <button class="action-btn" data-id="${calc.id}">View</button>
-                        <button class="delete-btn" data-id="${calc.id}">🗑️</button>
+                        <button class="action-btn" data-id="${bill.id}">View</button>
+                        <button class="delete-btn" data-id="${bill.id}">🗑️</button>
                     </div>
                 </td>
             `;
@@ -61,11 +61,11 @@ async function loadCalculations() {
         // Find and display highest bill
         if (data.length > 0) {
             const highestBill = data.reduce((prev, current) => 
-                (parseFloat(prev.result) > parseFloat(current.result)) ? prev : current
+                (parseFloat(prev.total) > parseFloat(current.total)) ? prev : current
             );
             const highestBillCard = document.querySelector('.bill-card-amount');
             if (highestBillCard) {
-                highestBillCard.textContent = '₱' + highestBill.result.toFixed(2) + ' ' + highestBill.month;
+                highestBillCard.textContent = '₱' + highestBill.total.toFixed(2) + ' ' + highestBill.period;
             }
         }
 
@@ -77,10 +77,10 @@ async function loadCalculations() {
                 if (bill) {
                     const date = new Date(bill.created_at).toLocaleString();
                     const billInfo = `
-Month: ${bill.month}
-Power Consumption: ${bill.power_consumption} KwH
-Cost per kWh: ₱${bill.cost_per_kwh}
-Result: ₱${bill.result.toFixed(2)}
+Month: ${bill.period}
+Power Consumption: ${bill.consumption} KwH
+Cost per kWh: ₱${bill.rate}
+Result: ₱${bill.total.toFixed(2)}
 Date Saved: ${date}
                     `;
                     alert('Bill Details:\n' + billInfo);
@@ -96,7 +96,7 @@ Date Saved: ${date}
                     
                     try {
                         const { error } = await supabaseClient
-                            .from('calculations')
+                            .from('bills')
                             .delete()
                             .eq('id', id)
                             .eq('user_id', user.id);
@@ -106,8 +106,8 @@ Date Saved: ${date}
                         alert('Bill record deleted successfully!');
                         loadCalculations(); // Reload table
                     } catch (error) {
-                        console.error('Error deleting calculation:', error);
-                        alert('Failed to delete calculation. Please try again.');
+                        console.error('Error deleting bill:', error);
+                        alert('Failed to delete bill. Please try again.');
                     }
                 }
             });

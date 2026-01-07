@@ -48,19 +48,18 @@ document.addEventListener('DOMContentLoaded', async function() {
         });
     }
 
-    // Real-time calculation as user types
+    // Real-time calculation as user types (preview only, don't show result card)
     document.querySelectorAll('.calculator-card input').forEach(input => {
         input.addEventListener('input', function() {
             const inputs = document.querySelectorAll('.calculator-card input');
             const power_consumption = parseFloat(inputs[1].value) || 0;
             const cost_per_kwh = parseFloat(inputs[2].value) || 0;
 
+            // Only update the amount if both values are provided, but DON'T show the card
             if (power_consumption > 0 && cost_per_kwh > 0) {
                 const result_value = (power_consumption * cost_per_kwh).toFixed(2);
                 document.querySelector('.result-amount').textContent = '₱' + result_value;
-                if (resultCard) {
-                    resultCard.classList.add('show');
-                }
+                // DO NOT add the 'show' class here - only show on button click
             }
         });
     });
@@ -86,16 +85,16 @@ document.addEventListener('DOMContentLoaded', async function() {
             saveBtn.disabled = true;
 
             try {
-                // Save to Supabase
+                // Save to Supabase (correct table name: 'bills', correct column names from schema)
                 const { data, error } = await supabaseClient
-                    .from('calculations')
+                    .from('bills')
                     .insert([
                         {
                             user_id: user.id,
-                            month: currentCalculation.month,
-                            power_consumption: currentCalculation.power_consumption,
-                            cost_per_kwh: currentCalculation.cost_per_kwh,
-                            result: currentCalculation.result
+                            period: currentCalculation.month,
+                            consumption: currentCalculation.power_consumption,
+                            rate: currentCalculation.cost_per_kwh,
+                            total: currentCalculation.result
                         }
                     ])
                     .select();
@@ -111,6 +110,15 @@ document.addEventListener('DOMContentLoaded', async function() {
                 
                 // Clear current calculation
                 currentCalculation = null;
+                
+                // Clear input fields
+                const inputs = document.querySelectorAll('.calculator-card input');
+                inputs.forEach(input => input.value = '');
+                
+                // Hide result card
+                if (resultCard) {
+                    resultCard.classList.remove('show');
+                }
                 
                 // Optionally redirect to results page
                 // window.location.href = 'results_page.html';
