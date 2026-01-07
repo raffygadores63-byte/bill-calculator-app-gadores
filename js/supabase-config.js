@@ -4,43 +4,58 @@ const supabaseKey = "sb_publishable_UgL-yfOe5xmIco_yx9p-KQ_cU-8rBsh";
 
 // Get the site URL (works for both localhost and production)
 const getSiteUrl = () => {
-    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-        return `http://${window.location.host}`;
-    }
-    return `${window.location.protocol}//${window.location.host}`;
+    const url = window.location.origin;
+    return url;
 };
 
 // Create Supabase client (supabase is available globally from CDN)
 // The CDN script exposes supabase with createClient method
-let supabaseClient;
+let supabaseClient = null;
+
+// Initialize Supabase client
+function initSupabase() {
+    if (typeof supabase !== 'undefined' && supabase.createClient) {
+        try {
+            supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+            window.supabaseClient = supabaseClient;
+            console.log('[Supabase] Client initialized successfully');
+            return true;
+        } catch (error) {
+            console.error('[Supabase] Error initializing client:', error);
+            return false;
+        }
+    } else {
+        console.error('[Supabase] Library not loaded yet');
+        return false;
+    }
+}
 
 // Wait for the library to load, then initialize
 (function() {
-    function initClient() {
-        if (typeof supabase !== 'undefined' && supabase.createClient) {
-            try {
-                const { createClient } = supabase;
-                supabaseClient = createClient(supabaseUrl, supabaseKey);
-                window.supabaseClient = supabaseClient;
-                console.log('Supabase client initialized successfully');
-            } catch (error) {
-                console.error('Error initializing Supabase client:', error);
-            }
-        } else {
-            console.error('Supabase library not loaded. Make sure the CDN script is included before this file.');
+    // Try multiple times to initialize
+    let attempts = 0;
+    const maxAttempts = 30; // 1.5 seconds total (30 * 50ms)
+    
+    const attemptInit = () => {
+        if (initSupabase()) {
+            console.log('[Supabase] Initialization successful');
+            return;
         }
-    }
+        
+        attempts++;
+        if (attempts < maxAttempts) {
+            setTimeout(attemptInit, 50);
+        } else {
+            console.error('[Supabase] Failed to initialize after ' + maxAttempts + ' attempts');
+        }
+    };
     
-    // Wait for script to load
+    // Start initialization
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', function() {
-            setTimeout(initClient, 100);
-        });
+        document.addEventListener('DOMContentLoaded', attemptInit);
     } else {
-        setTimeout(initClient, 100);
+        attemptInit();
     }
-    
-    // Also try to initialize immediately if library is already loaded
-    setTimeout(initClient, 50);
 })();
+
 
